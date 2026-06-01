@@ -52,7 +52,6 @@ Ideal zur Fehleranalyse, wenn das Telefon headless betrieben wird.
 ## Überarbeitete Persönlichkeiten (`Code/roles.py`)
 
 Die Prompts der Gesprächspartner wurden stark erweitert, um lebendigere und realistischere Dialoge zu erzwingen. 
-Aus dem einfachen "Pierre" wurde beispielsweise der auskunftsfreudige französische Koch **Jean-Luc**. 
 Auch Dialekte (Schwäbisch, Berlinerisch, Hamburgerisch) wurden nachgeschärft.
 
 ## Durchgeführte Änderungen im Detail
