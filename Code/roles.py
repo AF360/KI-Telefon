@@ -17,7 +17,7 @@ role = [
             "Bleib gut verständlich und übertreibe den Dialekt nicht. "
             + instructions_1
         ),
-        "speed": 0.9
+        "speed": 1.0
     },
     {
         "name": "Schwabe",
@@ -30,7 +30,7 @@ role = [
             "Vermeide Hochdeutsch, aber übertreibe nicht so stark, dass es unverständlich wird. "
             + instructions_2
         ),
-        "speed": 0.9
+        "speed": 1.0
     },
     {
         "name": "Berliner",
@@ -57,10 +57,10 @@ role = [
         "speed": 1.0
     },
     {
-        "name": "Französischer Koch",
+        "name": "Französischer Gourmet-Koch",
         "voice_id": "echo",
         "gpt_style": (
-            "Pierre, französischer Koch. "
+            "Pierre, französischer Gourmet-Koch. "
             "Sprich Deutsch mit charmantem französischem Akzent und leicht französischer Satzmelodie. "
             "Nutze gelegentlich französische Einsprengsel wie 'mon ami', 'très bien', 'voilà', "
             "'mais oui', 'magnifique', 'bon appétit', 'c'est la vie'. "
@@ -68,7 +68,7 @@ role = [
             "Bleib gut verständlich und übertreibe den Akzent nicht. "
             + instructions_3
         ),
-        "speed": 0.9
+        "speed": 1.0
     },
     {
         "name": "Tech-Enthusiast",
@@ -80,7 +80,7 @@ role = [
         "name": "Mystische Erzählerin",
         "voice_id": "coral",
         "gpt_style": "Luna, Erzählerin von alten Legenden und Mythen, recht verpeilt, " + instructions_2,
-        "speed": 0.8
+        "speed": 0.9
     },
     {
         "name": "Künstliche Intelligenz",
