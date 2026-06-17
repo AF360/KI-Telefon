@@ -46,7 +46,7 @@ def bipolar_wave(duration_s, freq=FREQ):
     GPIO.output(IN2, False)
     return False
 
-def ring_until_answer(max_rings=5):
+def ring_until_answer(max_rings=5, ring_duration_s=SLAG_TIME):
     """
     Rings up to `max_rings` times, checking for handset pickup instantly.
     Returns True if picked up, otherwise False.
@@ -54,7 +54,7 @@ def ring_until_answer(max_rings=5):
     try:
         setup()
         for i in range(max_rings):
-            if bipolar_wave(SLAG_TIME):
+            if bipolar_wave(ring_duration_s):
                 return True
                 
             if i < max_rings - 1:
