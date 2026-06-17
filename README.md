@@ -16,6 +16,7 @@ Das System ahmt nun physikalische und logische Abläufe eines echten Wählscheib
 * **Echte Zwangstrennung:** Bricht die Verbindung zur KI ab, ertönt das Besetztzeichen. Das System blockiert danach logisch die Leitung, bis der Nutzer den Hörer physisch auflegt. Ein unnatürlicher, sofortiger Neustart des Amtstons wird verhindert.
 * **Agiles Polling (0.5s Debounce):** Das System reagiert auch auf schnelles Auflegen und Neu-Abheben, filtert aber Wackelkontakte alter Kupferfedern sicher heraus.
 * **Anrufer:** Das Programm ruft nun nur dann an und klingelt, wenn der Hörer auf der Gabel liegt. (Zustand wurde vorher nicht beachtet)
+* **Klingeln bis Antwort:** Per random-Funktion klingelt es zwei oder drei mal, bevor die KI das Gespräch annimmt.
 
 ## Modifikationen an der Hardware
 
@@ -32,6 +33,7 @@ Die Software wurde für den dauerhaften, wartungsfreien *Headless*-Betrieb (ohne
 * **API V2 & Environment Variables:** Migration auf das aktuelle `gpt-realtime-2` Modell. API-Keys können nun sicher über System-Umgebungsvariablen (`OPENAI_API_KEY`) statt im Klartext geladen werden.
 * **Saubere Terminierung:** Echtes `GPIO.cleanup()` und sofortiger Prozess-Exit beim Wählen der Ziffer `0` (Shutdown-Sequenz).
 * **Shutdown-Sequenz:** spielt zur Erkennung eine Tonfolge ab, statt des 425Hz Amtstons.
+* **Systemstart:** ein kurzes Klingeln (0,25 Sek.) signalisiert die Betriebsbereitschaft des KI-Telefons
 
 ## Neue Entwickler-Tools
 
