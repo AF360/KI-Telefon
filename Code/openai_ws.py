@@ -246,21 +246,28 @@ def receive_audio_from_websocket(ws, audio_buffer, stop_event, gespraechspartner
     finally:
         print("Empfangs-Thread beendet")
 
-
 def build_instructions(gespraechspartner_ref, role_ref):
     """Build the current system instructions for the selected role/person context."""
     gespraechspartner = gespraechspartner_ref[0]
     role = role_ref[0]
-    extra_info = ""
+
+    instructions = f"Du bist {role['gpt_style']}"
+
     if gespraechspartner:
-        extra_info = (
-            f"Der Gesprächspartner heißt {gespraechspartner['name']}. "
-            f"Er/Sie ist {gespraechspartner['alter']} Jahre alt, arbeitet als {gespraechspartner['beruf']} "
-            f"und hat als Hobby {gespraechspartner['hobby']}. "
+        instructions += (
+            "\n\nDer Anrufer wurde eindeutig erkannt. "
+            f"Er heißt {gespraechspartner['name']}, "
+            f"ist {gespraechspartner['alter']} Jahre alt, "
+            f"arbeitet als {gespraechspartner['beruf']} "
+            f"und interessiert sich für {gespraechspartner['hobby']}. "
+            "Frage nicht erneut nach seinem Namen. "
+            "Sprich ihn gelegentlich natürlich mit seinem Namen an. "
+            "Greife bei einer passenden Gelegenheit eines seiner Interessen "
+            "oder seinen Beruf im Gespräch auf, ohne seine Daten aufzuzählen "
+            "oder erkennen zu lassen, dass du sie aus einer Datenbank kennst."
         )
 
-    return f"{extra_info}Du bist {role['gpt_style']}"
-
+    return instructions
 
 def send_session_update(ws, gespraechspartner_ref, role_ref, initial=False):
     """Send session parameters to OpenAI cleanly without invalid dictionary keys."""
