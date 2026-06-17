@@ -15,6 +15,7 @@ import numpy as np
 import os
 import shutil
 import subprocess
+import random
 
 from roles import choose_role, role as role_list
 from openai_ws import connect_to_openai
@@ -52,6 +53,7 @@ GPIO.setup(PULSE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 FREQ_425HZ = 425
 AUTOCALL_DELAY = 30  # Seconds until next call if nobody picks up
 ROTARY_DEBOUNCE_S = 0.025
+READY_RING_DURATION_S = 0.25
 ROTARY_POLL_INTERVAL_S = 0.002
 
 
@@ -383,12 +385,15 @@ def wait_for_role_selection():
     stop_dial_tone()
 
     # Cancel if play_freitone returns False (handset hung up during rings)
-    if not play_freitone():
+    # ersetzen durch:
+    ring_count = random.choice((2, 3))
+    debug_print(f"Teilnehmer hebt nach {ring_count} Freitönen ab.")
+
+    if not play_freitone(repeats=ring_count):
         print("Hörer während Freiton aufgelegt – Anruf abgebrochen.")
         return None
-
+        
     return role_number
-
 
 def run_conversation(selected_role=None, is_outgoing=False):
     global audio_buffer, mic_queue, stop_event, hardware_muted
@@ -492,59 +497,97 @@ def run_conversation(selected_role=None, is_outgoing=False):
             while is_handset_lifted():
                 time.sleep(0.1)
 
-
 def main():
     setup()
 
     try:
+        # Nur ein kurzes akustisches Bereitschaftssignal.
+        # Daraus entsteht noch kein eingehender Anruf.
         if not is_handset_lifted():
-            print("Hörer aufgelegt – erstes Klingeln...")
-            if ring_until_answer(5):
-                print("Abgehoben – KI verbunden (eingehend).")
-                run_conversation(is_outgoing=False)
-            else:
-                print("Niemand hat abgehoben – wechsle in Wartephase.")
+            print("Hörer aufgelegt – kurzes Bereitschaftsklingeln...")
+            ring_until_answer(
+                max_rings=1,
+                ring_duration_s=READY_RING_DURATION_S,
+            )
         else:
-            print("Hörer bereits abgehoben – kein erstes Klingeln.")
+            print("Hörer bereits abgehoben – kein Bereitschaftsklingeln.")
 
-        next_ring_at = time.time() + AUTOCALL_DELAY
+        # Beim Programmstart läuft noch kein Rückruf-Timer.
+        # Er wird erst nach dem ersten Benutzertelefonat gesetzt.
+        next_ring_at = None
         last_wait_log_at = 0
 
         while True:
             handset_lifted = is_handset_lifted()
 
             if handset_lifted:
-                print("Hörer in Wartezeit abgehoben – ausgehender Anruf via Dialer.")
+                print("Hörer abgehoben – ausgehender Anruf via Dialer.")
+
                 role_number = wait_for_role_selection()
+
                 if role_number is not None:
-                    run_conversation(selected_role=role_number, is_outgoing=True)
-                next_ring_at = time.time() + AUTOCALL_DELAY
+                    run_conversation(
+                        selected_role=role_number,
+                        is_outgoing=True,
+                    )
+
+                    # Erst nach dem beendeten Gespräch beginnt
+                    # der Timer für den automatischen Rückruf.
+                    next_ring_at = time.time() + AUTOCALL_DELAY
+                    print(
+                        f"Rückruf-Timer gestartet: "
+                        f"{AUTOCALL_DELAY} Sekunden."
+                    )
+
+                continue
+
+            # Solange noch kein Gespräch stattgefunden hat,
+            # wird nur auf Abheben und Wählen gewartet.
+            if next_ring_at is None:
+                time.sleep(0.1)
                 continue
 
             now = time.time()
 
             if now >= next_ring_at:
                 print("Wartezeit abgelaufen – starte erneutes Klingeln.")
+
                 if ring_until_answer(5):
                     print("Abgehoben – KI verbunden (eingehend).")
+
+                    # selected_role bleibt None:
+                    # run_conversation wählt dadurch eine zufällige Persona.
                     run_conversation(is_outgoing=False)
                 else:
-                    print("Wieder nicht abgehoben – Wartezeit startet neu.")
+                    print(
+                        "Wieder nicht abgehoben – "
+                        "Wartezeit startet neu."
+                    )
+
+                # Bestehendes Verhalten beibehalten:
+                # Nach Gespräch oder nicht angenommenem Anruf
+                # beginnt das Intervall erneut.
                 next_ring_at = time.time() + AUTOCALL_DELAY
+
             else:
                 if now - last_wait_log_at >= 5:
-                    remaining = max(0, int(next_ring_at - now))
-                    debug_print(f"Hörer aufgelegt – warte noch {remaining}s bis zum nächsten Klingeln.")
+                    remaining = max(
+                        0,
+                        int(next_ring_at - now),
+                    )
+                    debug_print(
+                        f"Hörer aufgelegt – warte noch "
+                        f"{remaining}s bis zum nächsten Klingeln."
+                    )
                     last_wait_log_at = now
 
                 time.sleep(0.1)
-                
+
     except KeyboardInterrupt:
         print("\nProgramm durch Benutzer beendet.")
     finally:
         print("Räume GPIO-Pins auf...")
         GPIO.cleanup()
-
 
 if __name__ == "__main__":
     main()
