@@ -1,3 +1,4 @@
+![Coglet1](KI-Telefon.png)  
 
 # KI-Telefon (fork)
 
